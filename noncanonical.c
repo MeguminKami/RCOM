@@ -67,12 +67,12 @@ int main(int argc, char** argv)
 
     printf("New termios structure set\n");
 
-    char c;
+    char letra;
     int i = 0;
     while (STOP==FALSE) {       /* loop for input */
-        read(fd,c,1);
-        printf("%s",c);
-        buf[i] = c ;
+        read(fd,letra,1);
+        printf("%s",letra);
+        buf[i] = letra;
         i++;
         if (c=='/0') STOP=TRUE;
     }
