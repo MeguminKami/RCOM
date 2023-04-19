@@ -79,7 +79,6 @@ int main(int argc, char** argv)
     res = write(fd,buf,255);
     printf("%d bytes written\n", res);
 
-
     /*
     O ciclo FOR e as instruções seguintes devem ser alterados de modo a respeitar
     o indicado no guião
