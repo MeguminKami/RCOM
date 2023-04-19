@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define BAUDRATE B38400
 #define MODEMDEVICE "/dev/ttyS1"
@@ -52,7 +53,7 @@ int main(int argc, char** argv)
     newtio.c_lflag = 0;
 
     newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
-    newtio.c_cc[VMIN]     = 5;   /* blocking read until 5 chars received */
+    newtio.c_cc[VMIN]     = 1;   /* blocking read until 5 chars received */
 
 
 
@@ -73,13 +74,8 @@ int main(int argc, char** argv)
 
 
 
-    for (i = 0; i < 255; i++) {
-        buf[i] = 'a';
-    }
-
-    /*testing*/
-    buf[25] = '\n';
-
+    scanf("%s",buf);
+    buf[strlen(buf)+1] = '/0' ;
     res = write(fd,buf,255);
     printf("%d bytes written\n", res);
 
@@ -89,6 +85,7 @@ int main(int argc, char** argv)
     o indicado no guião
     */
 
+    sleep(1);
 
     if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
         perror("tcsetattr");
