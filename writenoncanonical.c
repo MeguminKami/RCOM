@@ -75,16 +75,15 @@ int main(int argc, char** argv)
 
 
     scanf("%s",buf);
-    buf[strlen(buf)+1] = '\0' ;
+    buf[strlen(buf)+1] = '\0';
     write(fd,buf,255);
-
     char letra;
-    int i = 0;
+    int j = 0;
     while (STOP==FALSE) {       /* loop for input */
         read(fd,letra,1);
-        buf[i] = letra;
-        i++;
-        if (c=='/0') STOP=TRUE;
+        buf[j] = letra;
+        j++;
+        if (letra=='/0') STOP=TRUE;
     }
     printf("Recebido: %s\n",buf);
     /*

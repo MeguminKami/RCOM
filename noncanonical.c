@@ -73,11 +73,11 @@ int main(int argc, char** argv)
         read(fd,letra,1);
         buf[i] = letra;
         i++;
-        if (c=='/0') STOP=TRUE;
+        if (letra=='/0') STOP=TRUE;
     }
     printf("Received: %s\n",buf);
     printf("PRESS ENTER TO RETURN THE MESSAGE ");
-    getc();
+    getc(letra);
     write(fd,buf,255);
 
     /*
