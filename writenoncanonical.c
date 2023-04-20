@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 #define BAUDRATE B38400
-#define MODEMDEVICE "/dev/ttyS1"
+#define MODEMDEVICE "/dev/ttyS4"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 #define FALSE 0
 #define TRUE 1
@@ -75,10 +75,18 @@ int main(int argc, char** argv)
 
 
     scanf("%s",buf);
-    buf[strlen(buf)+1] = '/0' ;
-    res = write(fd,buf,255);
-    printf("%d bytes written\n", res);
+    buf[strlen(buf)+1] = '\0' ;
+    write(fd,buf,255);
 
+    char letra;
+    int i = 0;
+    while (STOP==FALSE) {       /* loop for input */
+        read(fd,letra,1);
+        buf[i] = letra;
+        i++;
+        if (c=='/0') STOP=TRUE;
+    }
+    printf("Recebido: %s\n",buf);
     /*
     O ciclo FOR e as instruções seguintes devem ser alterados de modo a respeitar
     o indicado no guião

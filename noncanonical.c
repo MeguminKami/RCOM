@@ -71,11 +71,14 @@ int main(int argc, char** argv)
     int i = 0;
     while (STOP==FALSE) {       /* loop for input */
         read(fd,letra,1);
-        printf("%s",letra);
         buf[i] = letra;
         i++;
         if (c=='/0') STOP=TRUE;
     }
+    printf("Received: %s\n",buf);
+    printf("PRESS ENTER TO RETURN THE MESSAGE ");
+    getc();
+    write(fd,buf,255);
 
     /*
     O ciclo WHILE deve ser alterado de modo a respeitar o indicado no guião
