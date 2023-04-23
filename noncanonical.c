@@ -23,7 +23,7 @@ int main(int argc, char** argv)
          ((strcmp("/dev/ttyS1", argv[1])!=0) &&
           (strcmp("/dev/ttyS11", argv[1])!=0) )) {
         printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1\n");
-        exit(1);
+        exit(1) ;
     }
 
 
