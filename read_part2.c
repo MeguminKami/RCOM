@@ -5,7 +5,7 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <stdio.h>
-
+#include "linklayer.h"
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 #define FALSE 0
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     char buf[255];
 
     if ( (argc < 2) ||
-         ((strcmp("/dev/ttyS1", argv[1])!=0) &&
+         ((strcmp("/dev/ttyS4", argv[1])!=0) &&
           (strcmp("/dev/ttyS11", argv[1])!=0) )) {
         printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1\n");
         exit(1);
@@ -65,22 +65,16 @@ int main(int argc, char** argv)
         exit(-1);
     }
 
-    printf("New termios structure set\n");
-
-    char *tmp = (char *) malloc(sizeof(char)) ;
-    int pos = 0 ;
-    while (STOP==FALSE) {       /* loop for input */
-        res = read(fd,buf,1);   /* returns after 5 chars have been input */
-        realloc(tmp,sizeof(char) * (pos+1));
-        tmp[pos] = buf[0] ;
-        pos++;
-        if (buf[0]=='\0') STOP=TRUE;
+    printf("New termios structure set\n Listening ...");
+    
+    while(STOP == FALSE)
+    {
+        read(fd,buf,1);
+        printf("\n%d",buf[0]);
+        if(buf[0] == '\0') STOP = TRUE ;
     }
-    printf("Received: %s\n", tmp);
-    res = write(fd,tmp,255);
-    printf("Sending %s of %d bytes\n",tmp,res);
+    
     sleep(1);
-
     /*
     O ciclo WHILE deve ser alterado de modo a respeitar o indicado no guião
     */
