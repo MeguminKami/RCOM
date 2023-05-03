@@ -144,8 +144,9 @@ int main(int argc, char** argv)
       }      
 
     }
-    printf("Connection Established !!!\n");
-
+    if(ESTADO == STOPED) printf("RCV & SENT\n");
+    else printf("ERROR\n");
+    
     BCC = SEND ^ UA ;
     UA_FRAME[0] = F;
     UA_FRAME[1] = SEND;
@@ -157,6 +158,7 @@ int main(int argc, char** argv)
     // UA FRAME
     for(int i = 0 ; i < 6 ; i++) buf[i] = UA_FRAME[i];
     res = write(fd,buf,255);
+    
     
     tcsetattr(fd,TCSANOW,&oldtio);
     close(fd);

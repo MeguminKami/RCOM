@@ -6,6 +6,8 @@
 #include <termios.h>
 #include <stdio.h>
 #include "linklayer.h"
+#include <unistd.h>
+#include <signal.h>
 #define BAUDRATE B38400
 #define MODEMDEVICE "/dev/ttyS11"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
@@ -13,7 +15,7 @@
 #define TRUE 1
 
 volatile int STOP=FALSE;
-
+int alarme_flag = 0 ;
 typedef enum
 {
     START,
@@ -24,6 +26,11 @@ typedef enum
     STOPED,
 
 } SETMSG ;
+
+void atende()                   // atende alarme
+{
+   alarme_flag = 1;
+}
 
 int main(int argc, char** argv)
 {
@@ -62,8 +69,8 @@ int main(int argc, char** argv)
     /* set input mode (non-canonical, no echo,...) */
     newtio.c_lflag = 0;
 
-    newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
-    newtio.c_cc[VMIN]     = 1;   /* blocking read until 5 chars received */
+    newtio.c_cc[VTIME]    = 0.1;   /* inter-character timer unused */
+    newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
 
 
 
@@ -82,6 +89,8 @@ int main(int argc, char** argv)
 
     printf("New termios structure set\n");
 
+    
+    int conta = 1 ;
     char* MSG[255] ;
     unsigned char SET_FRAME[5];
     unsigned char F = {0x5C};
@@ -102,18 +111,20 @@ int main(int argc, char** argv)
     SET_FRAME[4] = F;
     buf[0] = '\0';
     
+    (void) signal(SIGALRM, atende); 
 
     // SET FRAME
     for(int i = 0 ; i < 6 ; i++) buf[i] = SET_FRAME[i];
-
     res = write(fd,buf,255);
+    printf("Sending SET_FRAME : try number %d\n",conta);
+    alarm(3);
 
     while(STOP == FALSE) 
     {   
         res = read(fd,buf,1);
-
-      switch (ESTADO)
-      { 
+        if(res > 0) alarm(0);
+        switch (ESTADO)
+        { 
         case START:
             if(buf[0] == F) ESTADO = FRCV;
         break;
@@ -125,8 +136,7 @@ int main(int argc, char** argv)
                 ESTADO = ARCV;
             }
             else if (buf[0] == F) ESTADO = FRCV;
-            else ESTADO == START;
-            
+            else ESTADO = START;
         break;
 
         case ARCV:
@@ -159,10 +169,31 @@ int main(int argc, char** argv)
         break;
       }      
 
+        if(buf[0] == '\0') 
+        {   
+            STOP = TRUE ;
+            break;
+        }
+      
+        if(alarme_flag == 1)
+        {   
+            alarme_flag = 0;
+            if(conta == 3)
+            {
+                STOP = TRUE;
+                break;
+            }
+            conta++;
+            for(int i = 0 ; i < 6 ; i++) buf[i] = SET_FRAME[i];
+            res = write(fd,buf,255);
+            printf("Sending SET_FRAME : try number %d\n",conta);
+            alarm(3);
+        }
+        
     }   
 
-    printf("Received. Connection Established !!!\n");
-
+    if(ESTADO == STOPED) printf("Connection established\n");
+    else printf("ERROR - Connection failed\n");
     
     /*
     O ciclo FOR e as instruções seguintes devem ser alterados de modo a respeitar
