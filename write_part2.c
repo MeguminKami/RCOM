@@ -14,6 +14,17 @@
 
 volatile int STOP=FALSE;
 
+typedef enum
+{
+    START,
+    FRCV,
+    ARCV,
+    CRCV,
+    BCCOK,
+    STOPED,
+
+} SETMSG ;
+
 int main(int argc, char** argv)
 {
     int fd,c, res;
@@ -72,52 +83,91 @@ int main(int argc, char** argv)
     printf("New termios structure set\n");
 
     char* MSG[255] ;
-    strcpy(MSG,"up201906465@fe.up.pt");
-    unsigned int FRAME_SIZE = 6;
-    unsigned char frame[FRAME_SIZE];
+    unsigned char SET_FRAME[5];
     unsigned char F = {0x5C};
     unsigned char SEND = {0x01};
     unsigned char RECV = {0x03}; 
     unsigned char SET = {0x02};
+    unsigned char BCC ;
     unsigned char DISC = {0x0B};
     unsigned char UA = {0x07};
     unsigned char DADOS = {0x5D};
-    frame[0] = F;
-    frame[1] = SEND;
-    frame[2] = SET;
-    frame[3] = DADOS;
-    frame[4] = F;
-    
-    int hex_num = (int)frame[0];
-    sprintf(buf,"%02x",hex_num);
-    buf[strlen(buf)] = '\0';
-    res = write(buf,fd,255);
-    printf("Sending %s of %d bits.\n",buf,res);
-    /*
-    printf("\nSending:");
-    for(int i = 0 ; i < FRAME_SIZE ; i++)
-    {
-        if(frame[i] == DADOS)
-        {
-            write(fd,frame[i],255);
-            write(fd,MSG,255);
-            printf("%x ",frame[i]);
-            printf("%s ",MSG);
-            continue;
-        }
-        printf("%x ",frame[i]);
-        write(fd,frame[i],255);   
-    }
-    printf("\n");
-    */
+    SETMSG ESTADO = START;
+    unsigned char A , C ;
+    BCC = SET ^ SEND;
+    SET_FRAME[0] = F;
+    SET_FRAME[1] = SEND;
+    SET_FRAME[2] = SET;
+    SET_FRAME[3] = BCC;
+    SET_FRAME[4] = F;
+    buf[0] = '\0';
     
 
+    // SET FRAME
+    for(int i = 0 ; i < 6 ; i++) buf[i] = SET_FRAME[i];
+
+    res = write(fd,buf,255);
+
+    while(STOP == FALSE) 
+    {   
+        res = read(fd,buf,1);
+
+      switch (ESTADO)
+      { 
+        case START:
+            if(buf[0] == F) ESTADO = FRCV;
+        break;
+
+        case FRCV:
+            if(buf[0] == SEND) 
+            {   
+                A = buf[0] ;
+                ESTADO = ARCV;
+            }
+            else if (buf[0] == F) ESTADO = FRCV;
+            else ESTADO == START;
+            
+        break;
+
+        case ARCV:
+            if(buf[0] == UA) 
+            {
+                ESTADO = CRCV;
+                C = buf[0];
+                BCC = A ^ C;   
+            }
+            else if (buf[0] == F) ESTADO = FRCV;
+            else ESTADO = START;
+        break;
+
+        case CRCV:
+            if(buf[0] == BCC) ESTADO = BCCOK ;
+            else if(buf[0] == F) ESTADO = FRCV;
+            else ESTADO = START;
+        break;
+
+        case BCCOK:
+            if(buf[0] == F) ESTADO = STOPED;
+            else ESTADO = START;
+        break;
+
+        case STOPED:
+            STOP = TRUE ;
+        break;
+
+        default:
+        break;
+      }      
+
+    }   
+
+    printf("Received. Connection Established !!!\n");
+
+    
     /*
     O ciclo FOR e as instruções seguintes devem ser alterados de modo a respeitar
     o indicado no guião
     */
-
-    sleep(1);
 
     if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
         perror("tcsetattr");
