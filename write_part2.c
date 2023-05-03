@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <signal.h>
 #define BAUDRATE B38400
-#define MODEMDEVICE "/dev/ttyS11"
+#define MODEMDEVICE "/dev/ttyS4"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 #define FALSE 0
 #define TRUE 1
