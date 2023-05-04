@@ -122,7 +122,7 @@ int main(int argc, char** argv)
     while(STOP == FALSE) 
     {   
         res = read(fd,buf,1);
-        if(res > 0) alarm(0);
+    
         switch (ESTADO)
         { 
         case START:
@@ -200,6 +200,7 @@ int main(int argc, char** argv)
     o indicado no guião
     */
 
+    sleep(1);
     if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
         perror("tcsetattr");
         exit(-1);

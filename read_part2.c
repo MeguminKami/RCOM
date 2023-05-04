@@ -159,7 +159,7 @@ int main(int argc, char** argv)
     for(int i = 0 ; i < 6 ; i++) buf[i] = UA_FRAME[i];
     res = write(fd,buf,255);
     
-    
+    sleep(1);
     tcsetattr(fd,TCSANOW,&oldtio);
     close(fd);
     return 0;
