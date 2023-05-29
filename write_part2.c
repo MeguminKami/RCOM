@@ -100,7 +100,8 @@ int main(int argc, char** argv)
     unsigned char BCC ;
     unsigned char DISC = {0x0B};
     unsigned char UA = {0x07};
-    unsigned char DADOS = {0x5D};
+    unsigned char DADOS_T = {0x5C};
+    unsigned char DADOS_R = {0x5D};
     SETMSG ESTADO = START;
     unsigned char A , C ;
     BCC = SET ^ SEND;
